@@ -5,17 +5,6 @@ import database as db
 import date_time as dt
 import gamification as game
 
-def find_type(habit):
-    keywords = ['daily', 'weekly', 'monthly']
-    habit = habit.lower()
-    for keyword in keywords:
-        if keyword in habit: return keyword
-
-def not_found(username):
-    msg =  f'```\nUser: "{username}" not found.\n'
-    msg += f'Use !join to initiate yourself!\n```'
-    return msg
-
 def run_bot():
     logger = settings.logging.getLogger("bot")
     db.create_tables()
@@ -24,6 +13,10 @@ def run_bot():
     intents.message_content = True
     intents.members = True
     bot = commands.Bot(command_prefix='!', intents=intents)
+
+    global not_found
+    not_found =  f'```\nUser: not found.\n'
+    not_found += f'Use !join to initiate yourself!\n```'
 
     @bot.event
     async def on_ready():
@@ -77,7 +70,7 @@ def run_bot():
         if db.check_user(username): 
             db.leave_user(username)
             await ctx.send(f'```\nYou have been removed. Sad to see you go :(\n```')  
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
     
     @bot.command(
             aliases = ['a'],
@@ -95,7 +88,7 @@ def run_bot():
 
         if db.check_user(username):
             if db.check_habit(username, habit):
-                type = find_type(habit)
+                type = dt.find_type(habit)
 
                 if type is None:
                     err_msg = f'```\nERROR: Invalid Input\n'
@@ -115,7 +108,7 @@ def run_bot():
                         l_msg += f'Welcome to the {league.capitalize()} league!\n```'
                         await ctx.send(l_msg)
             else: await ctx.send(f"```\nERROR: Habit already found in {username}'s database.\n```")
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
 
     @bot.command(
             aliases = ['r'],
@@ -131,7 +124,7 @@ def run_bot():
             db.remove_habit(id, username)
             remove_msg = f'```\nHabit ID {id} has been removed!\n```'
             await ctx.send(remove_msg)
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
         
     @bot.command(
             aliases = ['c'],
@@ -183,7 +176,7 @@ def run_bot():
                     l_msg += f'Welcome to the {league.capitalize()} league!\n```'
                     await ctx.send(l_msg)
             
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
     
     @bot.command(
             aliases = ['p'],
@@ -214,7 +207,7 @@ def run_bot():
             embed.add_field(name="Progress Bar", value=progress_bar, inline=False)
             await ctx.send(embed=embed)
 
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
 
     @bot.command(
             aliases = ['db'],
@@ -298,7 +291,7 @@ def run_bot():
             prev_button.disabled = True
             await ctx.send(embed=embed, view=view)
 
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
 
     @bot.command(
             aliases = ['lb'],
@@ -397,7 +390,26 @@ def run_bot():
             prev_button.disabled = True
             await ctx.send(embed=embed, view=view)
         
-        else: await ctx.send(not_found(username))
+        else: await ctx.send(not_found)
+
+    @bot.command(
+            aliases = ['mt'],
+            help = "!motivate \n-OR- \n!mt",
+            description = '''Use this command to display a motivational quote!''',
+            brief = "Display a motivational quote"
+    )
+    async def motivate(ctx):
+        username = ctx.author.name
+
+        if db.check_user(username):
+            embed = discord.Embed(
+                title=game.get_quote("quote"),
+                description=game.get_quote("author"),
+                color=discord.Color.green()
+            )
+            await ctx.send(embed=embed)
+
+        else: await ctx.send(not_found)
 
     @bot.command(
             aliases = ['t'],

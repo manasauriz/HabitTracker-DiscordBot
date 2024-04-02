@@ -3,6 +3,12 @@ import asyncio
 import settings
 import database as db
 
+def find_type(habit):
+    keywords = ['daily', 'weekly', 'monthly']
+    habit = habit.lower()
+    for keyword in keywords:
+        if keyword in habit: return keyword
+
 def find_due(type):
     day = datetime.utcnow().day
     month = datetime.utcnow().month

@@ -1,5 +1,6 @@
 import database as db
 import date_time as dt
+import requests
 
 emoji = '\U0000203E'
 
@@ -101,3 +102,17 @@ def get_leaderboard(lbp):
     
     leaderboard += f'{emoji*42}\n```'
     return leaderboard
+
+def get_quote(type):
+    url = "https://api.quotable.io/quotes/random?tags=change|competition|failure|gratitude|inspirational|perseverance|success|work"
+    response = requests.get(url)
+    if response.status_code == 200:
+        quote_data = response.json()[0]
+        if type == "quote": 
+            content = quote_data['content']
+            return f'" {content} "'
+        if type == "author": 
+            content = quote_data['author']
+            return f'~ {content}'
+    else:
+        return "Failed to fetch motivational quote."

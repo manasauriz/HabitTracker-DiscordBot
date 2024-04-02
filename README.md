@@ -36,6 +36,8 @@ After inviting the bot to your server, you can interact with it using the follow
 
 > !leaderboard - Display leaderboard for your server
 
+> !motivate - Display a motivational quote
+
 ## Screenshots
 
 ### Habit Dashboard
